@@ -82,6 +82,7 @@ public class BatAlgo {
 		this.B = POP_SOL[fmin_i]; // (1xD)
 	}
 
+    // Can be replaced with ROSENBROCK 3d FUNCTION (https://www.sfu.ca/~ssurjano/rosen.html) easy valley but difficult global minima
 	private double objective(double[] Xi){
 		double sum = 0.0;
 		for ( int i = 0; i < Xi.length; i++ ){
@@ -114,13 +115,34 @@ public class BatAlgo {
 		double[][] S = new double[BATS][D];
 		int n_iter = 0;
 
-		// Loop for all iterations/generations(MAX)
+        // int node = BATS;
+        // double[] nodes = new double[node];
+        // Calculate and fill getResourceRemainingRate for all CPUS here
+        // double[] rrR = new double[node];
+        // Calculate and fill getPowerConsumption for all CPUS here
+        // double[] pC = new double[node];
+        // Calculate and fill getSla for all CPUS here
+        // double[] sLA = new double[node];
+        // for (int i = 0; i < node; i++) {
+        //     rrR[i] = getResourceRemainingRate(nodes[i].cpu_utilized,nodes[i].cpu_total,nodes[i].mem_utilized, nodes[i].mem_total, nodes[i].bw_utilized, nodes[i].bw_total)
+        //     pC[i] = getPowerConsumption(nodes[i].cpu_utilized,nodes[i].cpu_total, nodes[i].mem_utilized, nodes[i].mem_total, nodes[i].bw_utilized, nodes[i].bw_total)
+        //     sLA[i] = getSla(nodes[i].cpu_utilized,nodes[i].cpu_total)
+        // }
+        // Arrays.sort(rrR);
+        // F_MIN = rrR[0];
+        // F_MAX = rrR[rrR.length-1];
+
+        
+        // for (int i = 0; i < node; i++) {
+        // }
+		
+        // Loop for all iterations/generations(MAX)
 		for ( int t = 0; t < MAX; t++ ){
-			// Loop for all bats(BATS)
+			// Loop for all bats(BATS) or NODES--
 			for ( int i = 0; i < BATS; i++ ){
 				
 				// Update frequency (Nx1)
-				FRE[i][0] = F_MIN + (F_MIN-F_MAX) * rand.nextDouble(); //will replace the fMin and fmax with CPUmin and CPUmax 
+				FRE[i][0] = F_MIN + (F_MIN-F_MAX) * (rand.nextDouble() ); // Fmin and fmax will be replaced by node range of getResourceRemainingRate for all cpus
 				// Update velocity (NxD)
 				for ( int j = 0; j < D; j++ ){
 					V[i][j] = V[i][j] + (POP_SOL[i][j] - B[j]) * FRE[i][0];
@@ -130,10 +152,13 @@ public class BatAlgo {
 					S[i][j] = POP_SOL[i][j] + V[i][j];
 				}
 				// Apply bounds/limits
-				POP_SOL[i] = simpleBounds(POP_SOL[i]);
+				S[i] = simpleBounds(POP_SOL[i]);
 				
+
+                // PR will be replaced by getPowerConsumption(cpu_utilized, cpu_total, p_min, p_max) with a very gradual increase
+
                 // Pulse rate
-				if ( rand.nextDouble() > PR )
+				if ( rand.nextDouble() > PR ) //pC
 					for ( int j = 0; j < D; j++ )
                     {
                         // Generating Local solution around best solution
@@ -141,10 +166,10 @@ public class BatAlgo {
                     }
 
 				// Evaluate new solutions
-				double fnew = objective(POP_SOL[i]); //simple squared Sum
+				double fnew = objective(S[i]); //simple squared Sum
 
 				// Update if the solution improves or not too loud
-				if ( fnew <= FIT[i] && rand.nextDouble() < L ){ //coolant to avoid overfitting 
+				if ( fnew <= FIT[i] && rand.nextDouble() < L ){ //Loudness with sLA, coolant to avoid overfitting 
                     // According to video increase pulse rate and reduce loudness here(https://www.youtube.com/watch?v=peqgggW-gcs)
 					POP_SOL[i] = S[i];
 					FIT[i] = fnew;
