@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 public class BatAlgo {
 
-	private double[][] POP_SOL; 		// Population/Solution (BATS x D)
+	private double[][] POP_SOL; 		// Population/Solution (BATS x D) 
 	private double[][] V; 		// Velocities (BATS x D)
 	private double[][] FRE; 		// Frequency : 0 to F_MAX (BATS x 1)
 	private double[] FIT;			// Fitness (BATS)
@@ -64,7 +64,6 @@ public class BatAlgo {
 		// Initialize POP_SOL
 		for ( int i = 0; i < BATS; i++ ){
 			for ( int j = 0; j < D; j++ ){
-                
 				this.POP_SOL[i][j] = lb[0][j] + (ub[0][j] - lb[0][j]) * rand.nextDouble(); 
 			}
 			this.FIT[i] = objective(POP_SOL[i]);
@@ -121,7 +120,7 @@ public class BatAlgo {
 			for ( int i = 0; i < BATS; i++ ){
 				
 				// Update frequency (Nx1)
-				FRE[i][0] = F_MIN + (F_MIN-F_MAX) * rand.nextDouble();
+				FRE[i][0] = F_MIN + (F_MIN-F_MAX) * rand.nextDouble(); //will replace the fMin and fmax with CPUmin and CPUmax 
 				// Update velocity (NxD)
 				for ( int j = 0; j < D; j++ ){
 					V[i][j] = V[i][j] + (POP_SOL[i][j] - B[j]) * FRE[i][0];
@@ -132,16 +131,21 @@ public class BatAlgo {
 				}
 				// Apply bounds/limits
 				POP_SOL[i] = simpleBounds(POP_SOL[i]);
-				// Pulse rate
+				
+                // Pulse rate
 				if ( rand.nextDouble() > PR )
 					for ( int j = 0; j < D; j++ )
-						POP_SOL[i][j] = B[j] + 0.001 * rand.nextGaussian(); // distribution of random data from -3 to 3 https://www.javamex.com/tutorials/random_numbers/gaussian_distribution_2.shtml 
+                    {
+                        // Generating Local solution around best solution
+						S[i][j] = B[j] + 0.001 * rand.nextGaussian(); // distribution of random data from -3 to 3 https://www.javamex.com/tutorials/random_numbers/gaussian_distribution_2.shtml 
+                    }
 
 				// Evaluate new solutions
-				double fnew = objective(POP_SOL[i]);
+				double fnew = objective(POP_SOL[i]); //simple squared Sum
 
 				// Update if the solution improves or not too loud
-				if ( fnew <= FIT[i] && rand.nextDouble() < L ){
+				if ( fnew <= FIT[i] && rand.nextDouble() < L ){ //coolant to avoid overfitting 
+                    // According to video increase pulse rate and reduce loudness here(https://www.youtube.com/watch?v=peqgggW-gcs)
 					POP_SOL[i] = S[i];
 					FIT[i] = fnew;
 				}
@@ -165,6 +169,9 @@ public class BatAlgo {
 	}
 
 	public static void main(String[] args) {
+        // Bats will be replaced by nodes of server in your case
+        // We will pass nodes as an array here, and then will simulatanously get resources of each node in the algorithm
 		new BatAlgo(20, 1000, 0.0, 1.0, 0.0, 1.0).startBat();
+
 	}
 }

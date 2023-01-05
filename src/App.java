@@ -13,20 +13,20 @@ public class App {
         double p_min = 50;
         double p_max = 250;
         
-        // System.out.println(getSla(cpu_utilized,cpu_total));
+        System.out.println(getSla(cpu_utilized,cpu_total));
         
-        // System.out.println(getResourceRemainingRate(cpu_utilized,cpu_total, mem_utilized, mem_total, bw_utilized, bw_total));
+        System.out.println(getResourceRemainingRate(cpu_utilized,cpu_total, mem_utilized, mem_total, bw_utilized, bw_total));
         
-        // System.out.println(getPowerConsumption(cpu_utilized, cpu_total, p_min,p_max));
-        Random rand = new Random();
-        double[] FIT= new double[200];
-        for (int i = 0; i < 200; i++) {
-            FIT[i] = rand.nextGaussian();
-        }
-        Arrays.sort(FIT);
-        for (int i = 0; i < 200; i++) {
-            System.out.println(FIT[i]);
-        }
+        System.out.println(getPowerConsumption(cpu_utilized, cpu_total, p_min,p_max));
+        // Random rand = new Random();
+        // double[] FIT= new double[200];
+        // for (int i = 0; i < 200; i++) {
+        //     FIT[i] = rand.nextGaussian();
+        // }
+        // Arrays.sort(FIT);
+        // for (int i = 0; i < 200; i++) {
+        //     System.out.println(FIT[i]);
+        // }
     }
     public static double getSla(double cpu_utilized, double cpu_total) {
         
