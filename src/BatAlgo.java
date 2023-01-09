@@ -162,6 +162,7 @@ public class BatAlgo {
 					for ( int j = 0; j < D; j++ )
                     {
                         // Generating Local solution around best solution
+						// 0.001 is the learning rate
 						S[i][j] = B[j] + 0.001 * rand.nextGaussian(); // distribution of random data from -3 to 3 https://www.javamex.com/tutorials/random_numbers/gaussian_distribution_2.shtml 
                     }
 
