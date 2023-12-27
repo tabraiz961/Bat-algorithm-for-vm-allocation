@@ -4,42 +4,42 @@ import java.util.Arrays;
 
 public class OrigBatAlgorithm {
 
-	private double[][] X; 		// Population/Solution (N x D)
-	private double[][] V; 		// Velocities (N x D)
-	private double[][] Q; 		// Frequency : 0 to Q_MAX (N x 1)
-	private double[] F;			// Fitness (N)
-	private double R; 			// Pulse Rate : 0 to 1
-	private double A; 			// Louadness : A_MIN to A_MAX
+	private double[][] X; 		// Population/Solution (BATS x D)
+	private double[][] V; 		// Velocities (BATS x D)
+	private double[][] FREQ; 		// Frequency : 0 to FREQ_MAX (BATS x 1)
+	private double[] FIT;			// Fitness (BATS)
+	private double PR; 			// Pulse Rate : 0 to 1
+	private double LOUD; 			// Louadness : LOUD_MIN to LOUD_MAX
 	private double[][] lb;		// Lower bound (1 x D)
 	private double[][] ub;		// Upper bound (1 x D)
-	private double fmin; 		// Minimum fitness from F
- 	private double[] B;			// Best solution array from X (D)	
+	private double FIT_MIN; 		// Minimum fitness from FIT
+ 	private double[] B_ARR;			// Best solution array from X (D)	
 
-	private final int N; 		// Number of bats
+	private final int BATS; 		// Number of bats
 	private final int MAX; 		// Number of iterations
-	private final double Q_MIN = 0.0;
-	private final double Q_MAX = 2.0;
-	private final double A_MIN;
-	private final double A_MAX;
-	private final double R_MIN;
-	private final double R_MAX; 
+	private final double FREQ_MIN = 0.0;
+	private final double FREQ_MAX = 2.0;
+	private final double LOUD_MIN;
+	private final double LOUD_MAX;
+	private final double PR_MIN;
+	private final double PR_MAX; 
 	private final int D = 10;
 	private final Random rand = new Random();
 
-	public OrigBatAlgorithm(int N, int MAX, double A_MIN, double A_MAX, double R_MIN, double R_MAX){
-		this.N = N;
+	public OrigBatAlgorithm(int BATS, int MAX, double LOUD_MIN, double LOUD_MAX, double PR_MIN, double PR_MAX){
+		this.BATS = BATS;
 		this.MAX = MAX;
-		this.R_MAX = R_MAX;
-		this.R_MIN = R_MIN;
-		this.A_MAX = A_MAX;
-		this.A_MIN = A_MIN;
+		this.PR_MAX = PR_MAX;
+		this.PR_MIN = PR_MIN;
+		this.LOUD_MAX = LOUD_MAX;
+		this.LOUD_MIN = LOUD_MIN;
 
-		this.X = new double[N][D];
-		this.V = new double[N][D];
-		this.Q = new double[N][1];
-		this.F = new double[N];
-		this.R = (R_MAX + R_MIN) / 2;
-		this.A = (A_MIN + A_MAX) / 2;
+		this.X = new double[BATS][D];
+		this.V = new double[BATS][D];
+		this.FREQ = new double[BATS][1];
+		this.FIT = new double[BATS];
+		this.PR = (PR_MAX + PR_MIN) / 2;
+		this.LOUD = (LOUD_MIN + LOUD_MAX) / 2;
 
 		// Initialize bounds
 		this.lb = new double[1][D];
@@ -51,35 +51,35 @@ public class OrigBatAlgorithm {
 			this.ub[0][i] = 2.0;
 		}
 
-		// Initialize Q and V
-		for ( int i = 0; i < N; i++ ){
-			this.Q[i][0] = 0.0;
+		// Initialize FREQ and V
+		for ( int i = 0; i < BATS; i++ ){
+			this.FREQ[i][0] = 0.0;
 		}
-		for ( int i = 0; i < N; i++ ){
+		for ( int i = 0; i < BATS; i++ ){
 			for ( int j = 0; j < D; j++ ) {
 				this.V[i][j] = 0.0;
 			}
 		}
 
 		// Initialize X
-		for ( int i = 0; i < N; i++ ){
+		for ( int i = 0; i < BATS; i++ ){
 			for ( int j = 0; j < D; j++ ){
 				this.X[i][j] = lb[0][j] + (ub[0][j] - lb[0][j]) * rand.nextDouble();
 			}
-			this.F[i] = objective(X[i]);
+			this.FIT[i] = objective(X[i]);
 		}
 
 		// Find initial best solution
 		int fmin_i = 0;
-		for ( int i = 0; i < N; i++ ){
-			if ( F[i] < F[fmin_i] )
+		for ( int i = 0; i < BATS; i++ ){
+			if ( FIT[i] < FIT[fmin_i] )
 				fmin_i = i;
 		}
 
 		// Store minimum fitness and it's index.
-		// B holds the best solution array[1xD]
-		this.fmin = F[fmin_i];
-		this.B = X[fmin_i]; // (1xD)
+		// B_ARR holds the best solution array[1xD]
+		this.FIT_MIN = FIT[fmin_i];
+		this.B_ARR = X[fmin_i]; // (1xD)
 	}
 
 	private double objective(double[] Xi){
@@ -111,19 +111,19 @@ public class OrigBatAlgorithm {
 
 	private void startBat(){
 
-		double[][] S = new double[N][D];
+		double[][] S = new double[BATS][D];
 		int n_iter = 0;
 
 		// Loop for all iterations/generations(MAX)
 		for ( int t = 0; t < MAX; t++ ){
-			// Loop for all bats(N)
-			for ( int i = 0; i < N; i++ ){
+			// Loop for all bats(BATS)
+			for ( int i = 0; i < BATS; i++ ){
 				
 				// Update frequency (Nx1)
-				Q[i][0] = Q_MIN + (Q_MIN-Q_MAX) * rand.nextDouble();
+				FREQ[i][0] = FREQ_MIN + (FREQ_MIN-FREQ_MAX) * rand.nextDouble();
 				// Update velocity (NxD)
 				for ( int j = 0; j < D; j++ ){
-					V[i][j] = V[i][j] + (X[i][j] - B[j]) * Q[i][0];
+					V[i][j] = V[i][j] + (X[i][j] - B_ARR[j]) * FREQ[i][0];
 				}
 				// Update S = X + V
 				for ( int j = 0; j < D; j++ ){
@@ -132,32 +132,32 @@ public class OrigBatAlgorithm {
 				// Apply bounds/limits
 				X[i] = simpleBounds(X[i]);
 				// Pulse rate
-				if ( rand.nextDouble() > R )
+				if ( rand.nextDouble() > PR )
 					for ( int j = 0; j < D; j++ )
-						X[i][j] = B[j] + 0.001 * rand.nextGaussian();
+						X[i][j] = B_ARR[j] + 0.001 * rand.nextGaussian();
 
 
 				// Evaluate new solutions
 				double fnew = objective(X[i]);
 
 				// Update if the solution improves or not too loud
-				if ( fnew <= F[i] && rand.nextDouble() < A ){
+				if ( fnew <= FIT[i] && rand.nextDouble() < LOUD ){
 					X[i] = S[i];
-					F[i] = fnew;
+					FIT[i] = fnew;
 				}
 
 				// Update the current best solution
-				if ( fnew <= fmin ){
-					B = X[i];
-					fmin = fnew;
+				if ( fnew <= FIT_MIN ){
+					B_ARR = X[i];
+					FIT_MIN = fnew;
 				}
-			} // end loop for N
-			n_iter = n_iter + N;
+			} // end loop for BATS
+			n_iter = n_iter + BATS;
 		} // end loop for MAX
 
 		System.out.println("Number of evaluations : " + n_iter );
-		System.out.println("Best = " + Arrays.toString(B) );
-		System.out.println("fmin = " + fmin );
+		System.out.println("Best = " + Arrays.toString(B_ARR) );
+		System.out.println("FIT_MIN = " + FIT_MIN );
 	}
 
 	public static void main(String[] args) {
